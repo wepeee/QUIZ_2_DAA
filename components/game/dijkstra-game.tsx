@@ -290,6 +290,7 @@ export function DijkstraGame({ levels }: DijkstraGameProps) {
               playerCost={playerCost}
               optimalResult={optimalAnalysis.result}
               showOptimal={evaluation.kind === "done"}
+              compact
               evaluationStatus={evaluation.kind}
               evaluationMessage={evaluation.message}
               score={evaluation.kind === "done" ? evaluation.score : null}
