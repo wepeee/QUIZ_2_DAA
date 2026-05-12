@@ -1,13 +1,6 @@
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import type { DijkstraResult, NodeId } from "@/types/graph";
 
-type ScorePanelProps = {
+type Props = {
   playerPath: NodeId[];
   playerCost: number | null;
   optimalResult: DijkstraResult;
@@ -20,12 +13,11 @@ type ScorePanelProps = {
   isOptimal: boolean;
 };
 
-function renderPath(path: NodeId[]): string {
-  return path.length === 0 ? "-" : path.join(" -> ");
+function fmt(v: number | null) {
+  return v === null ? "—" : String(v);
 }
-
-function formatCost(value: number | null): string {
-  return value === null ? "-" : value.toString();
+function renderPath(p: NodeId[]) {
+  return p.length === 0 ? "—" : p.join(" → ");
 }
 
 export function ScorePanel({
@@ -33,103 +25,128 @@ export function ScorePanel({
   playerCost,
   optimalResult,
   showOptimal,
-  compact = false,
   evaluationStatus,
   evaluationMessage,
   score,
   difference,
   isOptimal,
-}: ScorePanelProps) {
-  const statusVariant =
-    evaluationStatus === "done"
-      ? isOptimal
-        ? "default"
-        : "secondary"
-      : evaluationStatus === "error"
-        ? "destructive"
-        : "outline";
-  const statusLabel =
-    evaluationStatus === "done"
-      ? "Selesai"
-      : evaluationStatus === "error"
-        ? "Error"
-        : "Siap";
+}: Props) {
+  const isDone = evaluationStatus === "done";
+  const isError = evaluationStatus === "error";
+  const pct = score ?? 0;
 
-  const content = (
-    <div className={compact ? "space-y-3" : "space-y-4"}>
-      <div className="flex items-center justify-end">
-        <Badge variant={statusVariant}>{statusLabel}</Badge>
-      </div>
-      <div className="grid grid-cols-2 gap-2 text-sm">
-        <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
-          <p className="text-xs text-muted-foreground">Biaya Kamu</p>
-          <p className="font-semibold">{formatCost(playerCost)}</p>
+  return (
+    <div className="space-y-4 pt-2">
+      {/* Efficiency meter */}
+      {isDone && (
+        <div className="space-y-1.5">
+          <div className="flex justify-between text-[11px]">
+            <span className="text-muted-foreground">Efisiensi</span>
+            <span className="font-mono font-semibold text-foreground">
+              {pct}%
+            </span>
+          </div>
+          <div className="h-2 w-full overflow-hidden rounded-full bg-muted/40">
+            <div
+              className={`h-full rounded-full transition-all duration-700 ease-out ${
+                isOptimal ? "bg-[oklch(0.62_0.20_148)]" : "bg-primary"
+              }`}
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <p
+            className={`text-xs font-medium ${
+              isOptimal
+                ? "text-[oklch(0.72_0.20_148)]"
+                : "text-muted-foreground"
+            }`}
+          >
+            {evaluationMessage}
+          </p>
         </div>
-        <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
-          <p className="text-xs text-muted-foreground">Biaya Optimal</p>
-          <p className="font-semibold">
-            {showOptimal
+      )}
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-2">
+        {[
+          { label: "Biaya Kamu", value: fmt(playerCost) },
+          {
+            label: "Biaya Optimal",
+            value: showOptimal
               ? optimalResult.reachable
-                ? optimalResult.distance
-                : "-"
-              : "?"}
-          </p>
-        </div>
-        <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
-          <p className="text-xs text-muted-foreground">Score</p>
-          <p className="font-semibold">{score ?? "-"}</p>
-        </div>
-        <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
-          <p className="text-xs text-muted-foreground">Selisih</p>
-          <p className="font-semibold">{difference ?? "-"}</p>
-        </div>
+                ? String(optimalResult.distance)
+                : "∞"
+              : "?",
+          },
+          {
+            label: "Selisih",
+            value:
+              difference !== null
+                ? difference === 0
+                  ? "0"
+                  : `+${difference}`
+                : "—",
+            highlight: (difference ?? 0) > 0,
+          },
+          { label: "Score", value: fmt(score) },
+        ].map(({ label, value, highlight }) => (
+          <div
+            key={label}
+            className="rounded-xl border border-border/40 bg-muted/20 px-3 py-2.5 space-y-0.5"
+          >
+            <p className="text-[9px] uppercase tracking-widest text-muted-foreground">
+              {label}
+            </p>
+            <p
+              className={`font-mono text-lg font-bold leading-none ${
+                highlight ? "text-[oklch(0.68_0.22_25)]" : "text-foreground"
+              }`}
+            >
+              {value}
+            </p>
+          </div>
+        ))}
       </div>
 
-      <div className="space-y-2 rounded-lg border border-border/70 bg-muted/20 p-3">
-        <p className="text-xs text-muted-foreground">Jalur Kamu</p>
-        <p className="font-mono text-sm">{renderPath(playerPath)}</p>
+      {/* Paths */}
+      <div className="space-y-2">
+        {[
+          { label: "Jalur Kamu", value: renderPath(playerPath) },
+          {
+            label: "Jalur Optimal",
+            value: showOptimal ? renderPath(optimalResult.path) : "?",
+          },
+        ].map(({ label, value }) => (
+          <div
+            key={label}
+            className="rounded-xl border border-border/40 bg-muted/20 px-3 py-2.5 space-y-1"
+          >
+            <p className="text-[9px] uppercase tracking-widest text-muted-foreground">
+              {label}
+            </p>
+            <p className="font-mono text-[11px] text-foreground/85 break-all">
+              {value}
+            </p>
+          </div>
+        ))}
       </div>
 
-      <div className="space-y-2 rounded-lg border border-border/70 bg-muted/20 p-3">
-        <p className="text-xs text-muted-foreground">Jalur Optimal</p>
-        <p className="font-mono text-sm">
-          {showOptimal ? renderPath(optimalResult.path) : "?"}
+      {/* Error / idle message */}
+      {isError && (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/8 px-3 py-2.5">
+          <p className="text-xs text-destructive">{evaluationMessage}</p>
+        </div>
+      )}
+
+      {/* Footer info */}
+      <div className="flex items-center justify-between rounded-xl border border-border/40 bg-muted/10 px-3 py-2">
+        <p className="text-[10px] text-muted-foreground">
+          Node dikunjungi Dijkstra
         </p>
-      </div>
-
-      <div className="space-y-1 rounded-lg border border-border/70 bg-background p-3">
-        <p className="text-xs text-muted-foreground">Status</p>
-        {evaluationMessage ? (
-          <p className="text-sm">{evaluationMessage}</p>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            Klik node lalu tekan Check.
-          </p>
-        )}
-      </div>
-
-      <div className="space-y-1 rounded-lg border border-border/70 bg-muted/10 p-3">
-        <p className="text-xs text-muted-foreground">Info</p>
-        <p className="text-sm">
-          Nodes dikunjungi:{" "}
-          <span className="font-medium">{showOptimal ? optimalResult.visitedNodes : "?"}</span>
+        <p className="font-mono text-xs font-semibold">
+          {showOptimal ? optimalResult.visitedNodes : "—"}
         </p>
       </div>
     </div>
-  );
-
-  if (compact) {
-    return content;
-  }
-
-  return (
-    <Card className="h-fit">
-      <CardHeader>
-        <CardTitle>Hasil</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {content}
-      </CardContent>
-    </Card>
   );
 }
