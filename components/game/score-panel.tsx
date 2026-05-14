@@ -5,7 +5,6 @@ type Props = {
   playerCost: number | null;
   optimalResult: DijkstraResult;
   showOptimal: boolean;
-  compact?: boolean;
   evaluationStatus: "idle" | "error" | "done";
   evaluationMessage: string | null;
   score: number | null;
@@ -13,8 +12,8 @@ type Props = {
   isOptimal: boolean;
 };
 
-function fmt(v: number | null) {
-  return v === null ? "—" : String(v);
+function fmt(v: number | null, unit = "") {
+  return v === null ? "—" : `${v}${unit}`;
 }
 function renderPath(p: NodeId[]) {
   return p.length === 0 ? "—" : p.join(" → ");
@@ -41,12 +40,10 @@ export function ScorePanel({
       {isDone && (
         <div className="space-y-1.5">
           <div className="flex justify-between text-[11px]">
-            <span className="text-muted-foreground">Efisiensi</span>
-            <span className="font-mono font-semibold text-foreground">
-              {pct}%
-            </span>
+            <span className="text-muted-foreground">Efficiency</span>
+            <span className="font-mono font-bold text-foreground">{pct}%</span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-muted/40">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-muted/50">
             <div
               className={`h-full rounded-full transition-all duration-700 ease-out ${
                 isOptimal ? "bg-[oklch(0.62_0.20_148)]" : "bg-primary"
@@ -56,9 +53,7 @@ export function ScorePanel({
           </div>
           <p
             className={`text-xs font-medium ${
-              isOptimal
-                ? "text-[oklch(0.72_0.20_148)]"
-                : "text-muted-foreground"
+              isOptimal ? "text-[oklch(0.76_0.20_148)]" : "text-muted-foreground"
             }`}
           >
             {evaluationMessage}
@@ -69,22 +64,22 @@ export function ScorePanel({
       {/* Stats */}
       <div className="grid grid-cols-2 gap-2">
         {[
-          { label: "Biaya Kamu", value: fmt(playerCost) },
+          { label: "Your Latency", value: fmt(playerCost, " ms") },
           {
-            label: "Biaya Optimal",
+            label: "Min Latency",
             value: showOptimal
               ? optimalResult.reachable
-                ? String(optimalResult.distance)
+                ? `${optimalResult.distance} ms`
                 : "∞"
               : "?",
           },
           {
-            label: "Selisih",
+            label: "Overhead",
             value:
               difference !== null
                 ? difference === 0
-                  ? "0"
-                  : `+${difference}`
+                  ? "0 ms"
+                  : `+${difference} ms`
                 : "—",
             highlight: (difference ?? 0) > 0,
           },
@@ -92,14 +87,14 @@ export function ScorePanel({
         ].map(({ label, value, highlight }) => (
           <div
             key={label}
-            className="rounded-xl border border-border/40 bg-muted/20 px-3 py-2.5 space-y-0.5"
+            className="rounded-xl border border-border bg-muted/40 px-3 py-2.5 space-y-0.5"
           >
             <p className="text-[9px] uppercase tracking-widest text-muted-foreground">
               {label}
             </p>
             <p
               className={`font-mono text-lg font-bold leading-none ${
-                highlight ? "text-[oklch(0.68_0.22_25)]" : "text-foreground"
+                highlight ? "text-[oklch(0.72_0.24_25)]" : "text-foreground"
               }`}
             >
               {value}
@@ -111,39 +106,37 @@ export function ScorePanel({
       {/* Paths */}
       <div className="space-y-2">
         {[
-          { label: "Jalur Kamu", value: renderPath(playerPath) },
+          { label: "Your Route", value: renderPath(playerPath) },
           {
-            label: "Jalur Optimal",
+            label: "System Route",
             value: showOptimal ? renderPath(optimalResult.path) : "?",
           },
         ].map(({ label, value }) => (
           <div
             key={label}
-            className="rounded-xl border border-border/40 bg-muted/20 px-3 py-2.5 space-y-1"
+            className="rounded-xl border border-border bg-muted/40 px-3 py-2.5 space-y-1"
           >
             <p className="text-[9px] uppercase tracking-widest text-muted-foreground">
               {label}
             </p>
-            <p className="font-mono text-[11px] text-foreground/85 break-all">
+            <p className="font-mono text-[11px] text-foreground/90 break-all">
               {value}
             </p>
           </div>
         ))}
       </div>
 
-      {/* Error / idle message */}
+      {/* Error message */}
       {isError && (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/8 px-3 py-2.5">
+        <div className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2.5">
           <p className="text-xs text-destructive">{evaluationMessage}</p>
         </div>
       )}
 
-      {/* Footer info */}
-      <div className="flex items-center justify-between rounded-xl border border-border/40 bg-muted/10 px-3 py-2">
-        <p className="text-[10px] text-muted-foreground">
-          Node dikunjungi Dijkstra
-        </p>
-        <p className="font-mono text-xs font-semibold">
+      {/* Footer */}
+      <div className="flex items-center justify-between rounded-xl border border-border bg-muted/30 px-3 py-2">
+        <p className="text-[10px] text-muted-foreground">Nodes traversed by router</p>
+        <p className="font-mono text-xs font-bold text-foreground">
           {showOptimal ? optimalResult.visitedNodes : "—"}
         </p>
       </div>

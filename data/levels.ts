@@ -3,9 +3,9 @@ import type { GraphLevel } from "@/types/graph";
 export const levels: GraphLevel[] = [
   {
     id: "level-1",
-    title: "Level 1: Warm-up Route",
+    title: "Ring Cluster — Alpha",
     description:
-      "Cari rute termurah dari A ke E. Jalur paling pendek tidak selalu yang paling terlihat lurus.",
+      "Route a packet from SRC to DST through this ring-topology cluster. The shortest-looking path may not be the cheapest.",
     start: "A",
     goal: "E",
     nodes: [
@@ -27,9 +27,9 @@ export const levels: GraphLevel[] = [
   },
   {
     id: "level-2",
-    title: "Level 2: Split Junction",
+    title: "Split Junction — Beta",
     description:
-      "Graph mulai bercabang. Pilih rute yang menyeimbangkan edge kecil sejak awal.",
+      "A branching network with two diverging relay paths. Choose the fork that minimizes total latency to DST.",
     start: "S",
     goal: "T",
     nodes: [
@@ -54,9 +54,9 @@ export const levels: GraphLevel[] = [
   },
   {
     id: "level-3",
-    title: "Level 3: Zigzag Cost",
+    title: "Cascaded Relay — Gamma",
     description:
-      "Ada beberapa jalur dekat goal, tapi belum tentu optimal. Gunakan intuisi biaya total.",
+      "A cascaded relay network. Multiple paths converge near DST — compute cumulative latency carefully before committing.",
     start: "P",
     goal: "V",
     nodes: [
@@ -84,9 +84,9 @@ export const levels: GraphLevel[] = [
   },
   {
     id: "level-4",
-    title: "Level 4: Dense Grid",
+    title: "Dense Mesh — Delta",
     description:
-      "Node makin rapat. Rute yang terlalu cepat ke kanan bisa jebak biaya besar.",
+      "A dense mesh segment. Routing aggressively toward DST can trap you on high-latency links — plan the full path first.",
     start: "H",
     goal: "N",
     nodes: [
@@ -117,9 +117,9 @@ export const levels: GraphLevel[] = [
   },
   {
     id: "level-5",
-    title: "Level 5: Final Sprint",
+    title: "Backbone Network — Omega",
     description:
-      "Level terakhir. Banyak opsi dengan biaya mirip, jadi hitung total dengan hati-hati.",
+      "The core backbone. Many routes carry similar costs — analyze each hop precisely before committing your packet.",
     start: "A",
     goal: "I",
     nodes: [

@@ -17,8 +17,8 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dijkstra Game — DAA Quiz 2",
-  description: "Temukan jalur terpendek dan bandingkan dengan solusi Dijkstra.",
+  title: "NetTrace — DAA Quiz 2",
+  description: "Route your packet through the network with minimum latency.",
 };
 
 export default function RootLayout({

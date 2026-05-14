@@ -6,25 +6,25 @@ const H = 360;
 
 // ── Color constants (dark-mode palette) ──
 const C = {
-  bg: "oklch(0.10 0.012 265)",
-  dot: "oklch(0.24 0.016 265 / 40%)",
-  edgeDim: "oklch(0.28 0.016 265)",
-  edgeActive: "oklch(0.62 0.22 268)",
-  edgeGlow: "oklch(0.62 0.22 268 / 18%)",
-  wBg: "oklch(0.14 0.015 265)",
-  wBorder: "oklch(0.27 0.018 265)",
-  wBorderActive: "oklch(0.62 0.22 268)",
-  wText: "oklch(0.60 0.016 265)",
-  wTextActive: "oklch(0.62 0.22 268)",
-  nodeDefault: "oklch(0.16 0.016 265)",
-  nodeBorder: "oklch(0.30 0.018 265)",
-  nodeText: "oklch(0.62 0.018 265)",
-  nodeStart: "oklch(0.48 0.18 148)",
-  nodeStartGlow: "oklch(0.48 0.18 148 / 20%)",
-  nodeGoal: "oklch(0.52 0.20 25)",
-  nodeGoalGlow: "oklch(0.52 0.20 25 / 20%)",
-  nodePath: "oklch(0.50 0.20 268)",
-  nodePathGlow: "oklch(0.50 0.20 268 / 18%)",
+  bg: "oklch(0.09 0.012 265)",
+  dot: "oklch(0.30 0.018 265 / 50%)",
+  edgeDim: "oklch(0.36 0.020 265)",
+  edgeActive: "oklch(0.64 0.24 268)",
+  edgeGlow: "oklch(0.64 0.24 268 / 24%)",
+  wBg: "oklch(0.16 0.018 265)",
+  wBorder: "oklch(0.34 0.022 265)",
+  wBorderActive: "oklch(0.64 0.24 268)",
+  wText: "oklch(0.68 0.020 265)",
+  wTextActive: "oklch(0.72 0.24 268)",
+  nodeDefault: "oklch(0.18 0.018 265)",
+  nodeBorder: "oklch(0.40 0.022 265)",
+  nodeText: "oklch(0.72 0.020 265)",
+  nodeStart: "oklch(0.50 0.20 148)",
+  nodeStartGlow: "oklch(0.50 0.20 148 / 26%)",
+  nodeGoal: "oklch(0.55 0.22 25)",
+  nodeGoalGlow: "oklch(0.55 0.22 25 / 26%)",
+  nodePath: "oklch(0.52 0.22 268)",
+  nodePathGlow: "oklch(0.52 0.22 268 / 24%)",
   nodeWhiteText: "oklch(0.97 0 0)",
 };
 
@@ -47,7 +47,7 @@ export function GraphBoard({ level, path, onNodeClick }: Props) {
     for (let gy = 36; gy <= H - 30; gy += 72) dots.push({ x: gx, y: gy });
 
   return (
-    <div className="w-full overflow-x-auto rounded-xl border border-border/50 bg-[oklch(0.10_0.012_265)] shadow-inner">
+    <div className="w-full overflow-x-auto rounded-xl border border-border bg-[oklch(0.09_0.012_265)] shadow-inner">
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className="h-[340px] w-full min-w-[580px]"
