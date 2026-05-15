@@ -5,6 +5,53 @@ type Neighbor = {
   weight: number;
 };
 
+class MinHeap {
+  private heap: [number, NodeId][] = [];
+
+  get size() {
+    return this.heap.length;
+  }
+
+  push(dist: number, node: NodeId) {
+    this.heap.push([dist, node]);
+    this.bubbleUp(this.heap.length - 1);
+  }
+
+  pop(): [number, NodeId] | null {
+    if (this.heap.length === 0) return null;
+    const top = this.heap[0];
+    const last = this.heap.pop()!;
+    if (this.heap.length > 0) {
+      this.heap[0] = last;
+      this.sinkDown(0);
+    }
+    return top;
+  }
+
+  private bubbleUp(i: number) {
+    while (i > 0) {
+      const parent = (i - 1) >> 1;
+      if (this.heap[parent][0] <= this.heap[i][0]) break;
+      [this.heap[parent], this.heap[i]] = [this.heap[i], this.heap[parent]];
+      i = parent;
+    }
+  }
+
+  private sinkDown(i: number) {
+    const n = this.heap.length;
+    while (true) {
+      let smallest = i;
+      const left = 2 * i + 1;
+      const right = 2 * i + 2;
+      if (left < n && this.heap[left][0] < this.heap[smallest][0]) smallest = left;
+      if (right < n && this.heap[right][0] < this.heap[smallest][0]) smallest = right;
+      if (smallest === i) break;
+      [this.heap[smallest], this.heap[i]] = [this.heap[i], this.heap[smallest]];
+      i = smallest;
+    }
+  }
+}
+
 export function getEdgeKey(from: NodeId, to: NodeId): string {
   return from < to ? `${from}::${to}` : `${to}::${from}`;
 }
@@ -70,15 +117,14 @@ export function dijkstra(
   const adjacency = buildAdjacency(level);
   const distances = new Map<NodeId, number>();
   const previous = new Map<NodeId, NodeId | null>();
-  const unvisited = new Set<NodeId>();
+  const visited = new Set<NodeId>();
 
   for (const node of level.nodes) {
     distances.set(node.id, Number.POSITIVE_INFINITY);
     previous.set(node.id, null);
-    unvisited.add(node.id);
   }
 
-  if (!unvisited.has(start) || !unvisited.has(goal)) {
+  if (!distances.has(start) || !distances.has(goal)) {
     return {
       path: [],
       distance: Number.POSITIVE_INFINITY,
@@ -88,44 +134,34 @@ export function dijkstra(
   }
 
   distances.set(start, 0);
+
+  const heap = new MinHeap();
+  heap.push(0, start);
+
   let visitedNodes = 0;
 
-  while (unvisited.size > 0) {
-    let currentNode: NodeId | null = null;
-    let shortestDistance = Number.POSITIVE_INFINITY;
+  while (heap.size > 0) {
+    const entry = heap.pop();
+    if (entry === null) break;
 
-    for (const nodeId of unvisited) {
-      const distance = distances.get(nodeId) ?? Number.POSITIVE_INFINITY;
+    const [dist, currentNode] = entry;
 
-      if (distance < shortestDistance) {
-        shortestDistance = distance;
-        currentNode = nodeId;
-      }
-    }
-
-    if (currentNode === null || !Number.isFinite(shortestDistance)) {
-      break;
-    }
-
-    unvisited.delete(currentNode);
+    if (visited.has(currentNode)) continue;
+    visited.add(currentNode);
     visitedNodes += 1;
 
-    if (currentNode === goal) {
-      break;
-    }
+    if (currentNode === goal) break;
 
     for (const neighbor of adjacency.get(currentNode) ?? []) {
-      if (!unvisited.has(neighbor.to)) {
-        continue;
-      }
+      if (visited.has(neighbor.to)) continue;
 
-      const alternativeDistance = shortestDistance + neighbor.weight;
-      const knownDistance =
-        distances.get(neighbor.to) ?? Number.POSITIVE_INFINITY;
+      const alternative = dist + neighbor.weight;
+      const known = distances.get(neighbor.to) ?? Number.POSITIVE_INFINITY;
 
-      if (alternativeDistance < knownDistance) {
-        distances.set(neighbor.to, alternativeDistance);
+      if (alternative < known) {
+        distances.set(neighbor.to, alternative);
         previous.set(neighbor.to, currentNode);
+        heap.push(alternative, neighbor.to);
       }
     }
   }
